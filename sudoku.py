@@ -1,6 +1,12 @@
 import copy
 import pygame
 
+GREEN = (0, 255, 133)
+GRAY = (123, 123, 123)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BLACK = (0, 0, 0)
+
 def checkPos(grid, row, col, val):
     for i in range(9):
         if grid[i][col] == val:
@@ -24,7 +30,7 @@ def checkPos(grid, row, col, val):
     return True
 
 
-def solve(grid):
+def solve(grid, screen):
     empty = []
 
     for i in range(9):
@@ -32,9 +38,9 @@ def solve(grid):
             if grid[i][j] == 0:
                 empty.append([i, j])
 
-    return helper(grid, empty)
+    return helper(grid, empty, screen)
 
-def helper(grid, empty):
+def helper(grid, empty, screen):
 
     if len(empty) == 0:
         return grid
@@ -42,14 +48,35 @@ def helper(grid, empty):
     i, j = empty[0][0], empty[0][1]
     
     for val in range(1, 10):
+
+        cell = createCell(val, BLACK)
+        x = (70 - cell.get_rect().width) // 2
+        y = (70 - cell.get_rect().height) // 2
+        screen.blit(cell, (i * 71 + 1 + x, j * 71 + 3 + y))
+        pygame.display.update()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+        
         if checkPos(grid, i, j, val) is True:
+
+            cell = createCell(val, GREEN)
+            x = (70 - cell.get_rect().width) // 2
+            y = (70 - cell.get_rect().height) // 2
+            screen.blit(cell, (i * 71 + 1 + x, j * 71 + 3 + y))
+            pygame.display.update()
+
             tempGrid = copy.deepcopy(grid)
             tempGrid[i][j] = val
             
-            result = helper(tempGrid, empty[1:])
+            result = helper(tempGrid, empty[1:], screen)
 
             if result is not False:
                 return result
+        
+        cell = pygame.Rect(i * 71 + 1, j * 71 + 1, 70, 70)
+        pygame.draw.rect(screen, GRAY, cell)
 
     return False
 
@@ -93,7 +120,7 @@ def main():
 
     background = pygame.Surface(screen.get_size())
     background = background.convert()
-    background.fill((255, 255, 255))
+    background.fill(WHITE)
 
     screen.blit(background, (0, 0))
 
@@ -101,14 +128,13 @@ def main():
     for y in range(1, 640, 71):
         for x in range(1, 640, 71):
             cell = pygame.Rect(x, y, 70, 70)
-            pygame.draw.rect(screen, (123, 123, 123), cell)
-    pygame.display.update()
+            pygame.draw.rect(screen, GRAY, cell)
 
     # reading sudoku from file
     grid = [[0] * 9 for _ in range(9)]
     gridInput(grid)
 
-    # drawing numbers
+    # drawing centered numbers
     color = (20, 20, 123)
     for row in range(9):
         for col in range(9):
@@ -118,42 +144,25 @@ def main():
                 y = (70 - cell.get_rect().height) // 2
                 screen.blit(cell, (row * 71 + 1 + x, col * 71 + 3 + y))
 
-    # cell coordinates
-    x, y = 0, 0
+    pygame.display.flip()
+
+    solved = solve(grid, screen)
+
 
     # main loop
     running = True
-    while running:
-
+    while running is True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
-            """ elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                x, y = mapClick(event.pos[0]), mapClick(event.pos[1])
-                #print(x, y)
-                cell = pygame.Rect(71 * x + 1, 71 * y + 1, 70, 70)
-                pygame.draw.rect(screen, (0, 100, 0), cell)
-
-            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                cell = pygame.Rect(71 * x + 1, 71 * y + 1, 70, 70)
-                pygame.draw.rect(screen, (123, 123, 123), cell) """
-
+        
         pygame.display.update()
 
-    pygame.quit()
-
-
-    """
-    grid = [[0] * 9 for _ in range(9)]
-    gridInput()
-
-    solved = solve(grid)
     # printing result
     if solved is not False:
-        printGrid(solved)
+        print("Sudoku solved successfully")
     else:
-        print("Unable to solve") """
+        print("Unable to solve")
 
 
 if __name__ == '__main__': main()
