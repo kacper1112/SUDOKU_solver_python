@@ -1,6 +1,9 @@
 # SUDOKU_solver_python
 Simple sudoku solver in Python using a backtracking algorithm.
 
+![](name-of-giphy.gif)
+![](name-of-giphy.gif)
+
 - To input a number select the desired cell with LMB and press the number on your keyboard.
 - To clear the selected cell press ESC.
 - To start solving press RETURN.

@@ -93,7 +93,7 @@ def map_click(n):
     """ like p5 map """
     return int((n / 640) * 9)
 
-def highlight_cell(pos, grid, screen):
+def highlight_cell(pos, screen):
     """ highlight selected cell """
     cell_x = map_click(pos[0])
     cell_y = map_click(pos[1])
@@ -158,7 +158,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN and not solved: 
-                highlight_cell(event.pos, grid, screen)
+                highlight_cell(event.pos, screen)
                 selected_cell = list(map(map_click, event.pos))
             elif event.type == pygame.KEYDOWN and not solved:
                 if event.key == pygame.K_1:
