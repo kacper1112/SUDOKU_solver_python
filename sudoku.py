@@ -1,4 +1,7 @@
-import copy
+#pylint: disable=too-many-function-args
+#pylint: disable=no-member
+""" Kacper Stysinski """
+from copy import deepcopy
 import pygame
 
 GREEN = (0, 255, 133)
@@ -6,30 +9,28 @@ GRAY = (123, 123, 123)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-def checkPos(grid, row, col, val):
+def check_pos(grid, row, col, val):
+    """ check whether a value can be inserted into given cell """
     for i in range(9):
         if grid[i][col] == val:
             return False
-    
+
     for i in range(9):
         if grid[row][i] == val:
             return False
 
-    startCol = col // 3
-    startRow = row // 3
+    start_col = col // 3
+    start_row = row // 3
 
-    #print(startCol * 3, startCol * 3 + 3)
-    #print(startRow * 3, startRow * 3 + 3)
-
-    for i in range(startRow * 3, startRow * 3 + 3):
-        for j in range(startCol * 3, startCol * 3 + 3):
+    for i in range(start_row * 3, start_row * 3 + 3):
+        for j in range(start_col * 3, start_col * 3 + 3):
             if grid[i][j] == val:
                 return False
 
     return True
 
-
 def solve(grid, screen):
+    """ main solver function """
     empty = []
 
     for j in range(9):
@@ -40,69 +41,72 @@ def solve(grid, screen):
     return helper(grid, empty, screen)
 
 def helper(grid, empty, screen):
+    """ recursive solver """
 
-    if len(empty) == 0:
+    if not empty:
         return grid
-    
+
     i, j = empty[0][0], empty[0][1]
-    
+
     for val in range(1, 10):
 
-        cell = createCell(val, BLACK)
-        x = (70 - cell.get_rect().width) // 2
-        y = (70 - cell.get_rect().height) // 2
-        screen.blit(cell, (i * 71 + 1 + x, j * 71 + 3 + y))
+        cell = create_cell(val, BLACK)
+        cell_x = (70 - cell.get_rect().width) // 2
+        cell_y = (70 - cell.get_rect().height) // 2
+        screen.blit(cell, (i * 71 + 1 + cell_x, j * 71 + 3 + cell_y))
         pygame.display.update()
-        
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
-        
-        if checkPos(grid, i, j, val) is True:
 
-            cell = createCell(val, GREEN)
-            x = (70 - cell.get_rect().width) // 2
-            y = (70 - cell.get_rect().height) // 2
-            screen.blit(cell, (i * 71 + 1 + x, j * 71 + 3 + y))
+        if check_pos(grid, i, j, val) is True:
+
+            cell = create_cell(val, GREEN)
+            cell_x = (70 - cell.get_rect().width) // 2
+            cell_y = (70 - cell.get_rect().height) // 2
+            screen.blit(cell, (i * 71 + 1 + cell_x, j * 71 + 3 + cell_y))
             pygame.display.update()
 
-            tempGrid = copy.deepcopy(grid)
-            tempGrid[i][j] = val
-            
-            result = helper(tempGrid, empty[1:], screen)
+            temp_grid = deepcopy(grid)
+            temp_grid[i][j] = val
+
+            result = helper(temp_grid, empty[1:], screen)
 
             if result is not False:
                 return result
-        
+
         cell = pygame.Rect(i * 71 + 1, j * 71 + 1, 70, 70)
         pygame.draw.rect(screen, GRAY, cell)
 
     return False
 
-# debug printer
-def printGrid(grid):
+def print_grid(grid):
+    """ debug printer """
     for i in range(9):
         for j in range(9):
-            print(grid[i][j], end = ' ')
-            if j == 2 or j == 5:
-                print("|", end = ' ')
+            print(grid[i][j], end=' ')
+            if j in (2, 5):
+                print("|", end=' ')
         print()
-        if i == 2 or i == 5:
+        if i in (2, 5):
             for _ in range(21):
-                print("-", end = '')
+                print("-", end='')
             print()
 
-def gridInput(grid):
+def grid_input(grid):
+    """ read known grid values """
     for i in range(9):
         grid[i] = [int(n) for n in input().split()]
 
-def createCell(number, color):
+def create_cell(number, color):
+    """ create surface of a cell with a number  """
     font = pygame.font.Font(None, 65)
-    numSurface = font.render(str(number), True, color)
-    return numSurface
-
+    num_surface = font.render(str(number), True, color)
+    return num_surface
 
 def main():
+    """ main function """
     pygame.init()
 
     width, height = 640, 640
@@ -120,29 +124,32 @@ def main():
     screen.blit(background, (0, 0))
 
     # drawing the grid
-    for y in range(1, 640, 71):
-        for x in range(1, 640, 71):
-            cell = pygame.Rect(x, y, 70, 70)
+    for j in range(1, 640, 71):
+        for i in range(1, 640, 71):
+            cell = pygame.Rect(i, j, 70, 70)
             pygame.draw.rect(screen, GRAY, cell)
 
     # reading sudoku from file
     grid = [[0] * 9 for _ in range(9)]
-    gridInput(grid)
+    grid_input(grid)
 
     # drawing centered numbers
     color = (20, 20, 123)
-    for row in range(9):
-        for col in range(9):
-            if grid[row][col] != 0:
-                cell = createCell(grid[row][col], color)
-                x = (70 - cell.get_rect().width) // 2
-                y = (70 - cell.get_rect().height) // 2
-                screen.blit(cell, (row * 71 + 1 + x, col * 71 + 3 + y))
+    for j in range(9):
+        for i in range(9):
+            if grid[j][i] != 0:
+                cell = create_cell(grid[j][i], color)
+                cell_x = (70 - cell.get_rect().width) // 2
+                cell_y = (70 - cell.get_rect().height) // 2
+                screen.blit(cell, (j * 71 + 1 + cell_x, i * 71 + 3 + cell_y))
 
     pygame.display.flip()
 
-    solved = solve(grid, screen)
-
+    # solving sudoku
+    if solve(grid, screen) is not False:
+        print("Sudoku solved successfully")
+    else:
+        print("Unable to solve")
 
     # main loop
     running = True
@@ -150,15 +157,11 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        
+
         pygame.display.update()
 
     # printing result
-    if solved is not False:
-        print("Sudoku solved successfully")
-    else:
-        print("Unable to solve")
 
 
-if __name__ == '__main__': main()
-
+if __name__ == '__main__':
+    main()
