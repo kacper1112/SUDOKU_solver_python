@@ -11,6 +11,7 @@ BLUE = (20, 20, 123)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
+
 def check_pos(grid, row, col, val):
     """ check whether a value can be inserted into given cell """
     for i in range(9):
@@ -31,6 +32,7 @@ def check_pos(grid, row, col, val):
 
     return True
 
+
 def solve(grid, screen):
     """ main solver function """
     empty = []
@@ -41,6 +43,7 @@ def solve(grid, screen):
                 empty.append([i, j])
 
     return helper(grid, empty, screen)
+
 
 def helper(grid, empty, screen):
     """ recursive solver """
@@ -83,31 +86,33 @@ def helper(grid, empty, screen):
 
     return False
 
+
 def create_cell(number, color):
     """ create surface of a cell with a number  """
     font = pygame.font.Font(None, 65)
     num_surface = font.render(str(number), True, color)
     return num_surface
 
-def map_click(n):
+
+def map_click(num):
     """ like p5 map """
-    return int((n / 640) * 9)
+    return int((num / 640) * 9)
 
-def highlight_cell(pos, screen):
+
+def highlight_cell(pos, screen, color=LIGHT_GRAY):
     """ highlight selected cell """
-    cell_x = map_click(pos[0])
-    cell_y = map_click(pos[1])
 
-    cell = pygame.Rect(cell_x * 71 + 1, cell_y * 71 + 1, 70, 70)
-    pygame.draw.rect(screen, LIGHT_GRAY, cell)
+    cell = pygame.Rect(pos[0] * 71 + 1, pos[1] * 71 + 1, 70, 70)
+    pygame.draw.rect(screen, color, cell)
     pygame.display.update()
+
 
 def input_number(pos, number, grid, screen):
     """ print known numbers """
 
     cell = pygame.Rect(pos[0] * 71 + 1, pos[1] * 71 + 1, 70, 70)
     pygame.draw.rect(screen, GRAY, cell)
-    
+
     if number == -1:
         grid[pos[0]][pos[1]] = 0
         return
@@ -119,6 +124,7 @@ def input_number(pos, number, grid, screen):
     cell_y = (70 - cell.get_rect().height) // 2
     screen.blit(cell, (pos[0] * 71 + 1 + cell_x, pos[1] * 71 + 3 + cell_y))
     pygame.display.update()
+
 
 def main():
     """ main function """
@@ -146,8 +152,9 @@ def main():
 
     # reading sudoku from file
     grid = [[0] * 9 for _ in range(9)]
-    
+
     selected_cell = [0, 0]
+    selected_cell_used = True
     solved = False
 
     # main loop
@@ -157,33 +164,49 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN and not solved: 
-                highlight_cell(event.pos, screen)
+            elif event.type == pygame.MOUSEBUTTONDOWN and not solved:
+                if selected_cell_used is False:
+                    highlight_cell(selected_cell, screen, GRAY)
+
                 selected_cell = list(map(map_click, event.pos))
-            elif event.type == pygame.KEYDOWN and not solved:
+                highlight_cell(selected_cell, screen)
+                selected_cell_used = False
+            elif event.type == pygame.KEYDOWN and not solved and selected_cell_used is False:
                 if event.key == pygame.K_1:
                     input_number(selected_cell, 1, grid, screen)
+                    selected_cell_used = True
                 elif event.key == pygame.K_2:
                     input_number(selected_cell, 2, grid, screen)
+                    selected_cell_used = True
                 elif event.key == pygame.K_3:
                     input_number(selected_cell, 3, grid, screen)
+                    selected_cell_used = True
                 elif event.key == pygame.K_4:
                     input_number(selected_cell, 4, grid, screen)
+                    selected_cell_used = True
                 elif event.key == pygame.K_5:
                     input_number(selected_cell, 5, grid, screen)
+                    selected_cell_used = True
                 elif event.key == pygame.K_6:
                     input_number(selected_cell, 6, grid, screen)
+                    selected_cell_used = True
                 elif event.key == pygame.K_7:
                     input_number(selected_cell, 7, grid, screen)
+                    selected_cell_used = True
                 elif event.key == pygame.K_8:
                     input_number(selected_cell, 8, grid, screen)
+                    selected_cell_used = True
                 elif event.key == pygame.K_9:
                     input_number(selected_cell, 9, grid, screen)
+                    selected_cell_used = True
                 elif event.key == pygame.K_ESCAPE:
                     input_number(selected_cell, -1, grid, screen)
-                elif event.key == pygame.K_RETURN:
-                    solve(grid, screen)
-                    solved = True
+                    selected_cell_used = True
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                if selected_cell_used is False:
+                    highlight_cell(selected_cell, screen, GRAY)
+                solve(grid, screen)
+                solved = True
 
         pygame.display.update()
 
