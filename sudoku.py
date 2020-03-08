@@ -6,6 +6,8 @@ import pygame
 
 GREEN = (0, 255, 133)
 GRAY = (123, 123, 123)
+LIGHT_GRAY = (100, 100, 100)
+BLUE = (20, 20, 123)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
@@ -81,29 +83,42 @@ def helper(grid, empty, screen):
 
     return False
 
-def print_grid(grid):
-    """ debug printer """
-    for i in range(9):
-        for j in range(9):
-            print(grid[i][j], end=' ')
-            if j in (2, 5):
-                print("|", end=' ')
-        print()
-        if i in (2, 5):
-            for _ in range(21):
-                print("-", end='')
-            print()
-
-def grid_input(grid):
-    """ read known grid values """
-    for i in range(9):
-        grid[i] = [int(n) for n in input().split()]
-
 def create_cell(number, color):
     """ create surface of a cell with a number  """
     font = pygame.font.Font(None, 65)
     num_surface = font.render(str(number), True, color)
     return num_surface
+
+def map_click(n):
+    """ like p5 map """
+    return int((n / 640) * 9)
+
+def highlight_cell(pos, grid, screen):
+    """ highlight selected cell """
+    cell_x = map_click(pos[0])
+    cell_y = map_click(pos[1])
+
+    cell = pygame.Rect(cell_x * 71 + 1, cell_y * 71 + 1, 70, 70)
+    pygame.draw.rect(screen, LIGHT_GRAY, cell)
+    pygame.display.update()
+
+def input_number(pos, number, grid, screen):
+    """ print known numbers """
+
+    cell = pygame.Rect(pos[0] * 71 + 1, pos[1] * 71 + 1, 70, 70)
+    pygame.draw.rect(screen, GRAY, cell)
+    
+    if number == -1:
+        grid[pos[0]][pos[1]] = 0
+        return
+
+    grid[pos[0]][pos[1]] = number
+
+    cell = create_cell(number, BLUE)
+    cell_x = (70 - cell.get_rect().width) // 2
+    cell_y = (70 - cell.get_rect().height) // 2
+    screen.blit(cell, (pos[0] * 71 + 1 + cell_x, pos[1] * 71 + 3 + cell_y))
+    pygame.display.update()
 
 def main():
     """ main function """
@@ -131,32 +146,44 @@ def main():
 
     # reading sudoku from file
     grid = [[0] * 9 for _ in range(9)]
-    grid_input(grid)
-
-    # drawing centered numbers
-    color = (20, 20, 123)
-    for j in range(9):
-        for i in range(9):
-            if grid[j][i] != 0:
-                cell = create_cell(grid[j][i], color)
-                cell_x = (70 - cell.get_rect().width) // 2
-                cell_y = (70 - cell.get_rect().height) // 2
-                screen.blit(cell, (j * 71 + 1 + cell_x, i * 71 + 3 + cell_y))
-
-    pygame.display.flip()
-
-    # solving sudoku
-    if solve(grid, screen) is not False:
-        print("Sudoku solved successfully")
-    else:
-        print("Unable to solve")
+    
+    selected_cell = [0, 0]
+    solved = False
 
     # main loop
     running = True
     while running is True:
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN and not solved: 
+                highlight_cell(event.pos, grid, screen)
+                selected_cell = list(map(map_click, event.pos))
+            elif event.type == pygame.KEYDOWN and not solved:
+                if event.key == pygame.K_1:
+                    input_number(selected_cell, 1, grid, screen)
+                elif event.key == pygame.K_2:
+                    input_number(selected_cell, 2, grid, screen)
+                elif event.key == pygame.K_3:
+                    input_number(selected_cell, 3, grid, screen)
+                elif event.key == pygame.K_4:
+                    input_number(selected_cell, 4, grid, screen)
+                elif event.key == pygame.K_5:
+                    input_number(selected_cell, 5, grid, screen)
+                elif event.key == pygame.K_6:
+                    input_number(selected_cell, 6, grid, screen)
+                elif event.key == pygame.K_7:
+                    input_number(selected_cell, 7, grid, screen)
+                elif event.key == pygame.K_8:
+                    input_number(selected_cell, 8, grid, screen)
+                elif event.key == pygame.K_9:
+                    input_number(selected_cell, 9, grid, screen)
+                elif event.key == pygame.K_ESCAPE:
+                    input_number(selected_cell, -1, grid, screen)
+                elif event.key == pygame.K_RETURN:
+                    solve(grid, screen)
+                    solved = True
 
         pygame.display.update()
 
