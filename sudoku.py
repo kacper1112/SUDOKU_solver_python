@@ -4,7 +4,6 @@ import pygame
 GREEN = (0, 255, 133)
 GRAY = (123, 123, 123)
 WHITE = (255, 255, 255)
-RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 
 def checkPos(grid, row, col, val):
@@ -33,8 +32,8 @@ def checkPos(grid, row, col, val):
 def solve(grid, screen):
     empty = []
 
-    for i in range(9):
-        for j in range(9):
+    for j in range(9):
+        for i in range(9):
             if grid[i][j] == 0:
                 empty.append([i, j])
 
@@ -96,10 +95,6 @@ def printGrid(grid):
 def gridInput(grid):
     for i in range(9):
         grid[i] = [int(n) for n in input().split()]
-
-# like p5.map
-def mapClick(n):
-  return int((n / 640) * 9)
 
 def createCell(number, color):
     font = pygame.font.Font(None, 65)
