@@ -3,6 +3,7 @@
 """ Kacper Stysinski """
 from copy import deepcopy
 import pygame
+import sys
 
 GREEN = (0, 255, 133)
 GRAY = (123, 123, 123)
@@ -107,11 +108,13 @@ def highlight_cell(pos, screen, color=LIGHT_GRAY):
     pygame.display.update()
 
 
-def input_number(pos, number, grid, screen):
+def input_number(pos, number, grid, screen, no_draw = False):
     """ print known numbers """
 
-    cell = pygame.Rect(pos[0] * 71 + 1, pos[1] * 71 + 1, 70, 70)
-    pygame.draw.rect(screen, GRAY, cell)
+    #to prevent drawing when reading from file
+    if not no_draw:
+        cell = pygame.Rect(pos[0] * 71 + 1, pos[1] * 71 + 1, 70, 70)
+        pygame.draw.rect(screen, GRAY, cell)
 
     if number == -1:
         grid[pos[0]][pos[1]] = 0
@@ -150,12 +153,27 @@ def main():
             cell = pygame.Rect(i, j, 70, 70)
             pygame.draw.rect(screen, GRAY, cell)
 
-    # reading sudoku from file
-    grid = [[0] * 9 for _ in range(9)]
-
     selected_cell = [0, 0]
     selected_cell_used = True
     solved = False
+
+    grid = [[0] * 9 for _ in range(9)]
+
+    # optional: read from provided file
+    if len(sys.argv) > 1:
+        file_input = open(sys.argv[1], 'r')
+        if file_input is None:
+            raise Exception('Specified file {} could not be opened'.format(argv[1]))
+        
+        for j in range(9):
+            line = file_input.readline()
+            for i in range(9):
+                if line[i * 2] != '0':
+                    input_number([i, j], int(line[i * 2]), grid, screen, True)
+        print(grid)
+        solve(grid, screen)
+        solved = True
+       
 
     # main loop
     running = True
