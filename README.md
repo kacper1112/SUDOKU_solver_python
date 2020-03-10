@@ -23,3 +23,8 @@ Simple sudoku solver in Python using a backtracking algorithm.
 ```
 
 Keep in mind, that the main goal of this program is to show how a backtracking algorithm works, it is certainly not about quick sudoku solving.
+
+### TODO
+- <s>Implement simple line recognition using Hough Transform.</s>
+- Recognize individual cells in the grid.
+- Implement Tesseract OCR (probably) to read digits in cells.
